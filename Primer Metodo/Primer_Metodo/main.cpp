@@ -4,99 +4,90 @@
 using namespace std;
 int n = 0;
 int metodo = 0;
-void c_bin(char*);
+
+int s_real(char*,int);
+void c_bin(char*,int,char*);
 void first_params(char[],char[]);
+void archivo_r_w(char[], char[], char[], int, char*, int *tam_cad);
+
+void separar(char **, char*, int);
+
 bool compare(char* a, char* b); //Función para comparar si las cadenas de caracteres son iguales.
 int main()
 {
-    char nf_input[32]=" ", nf_output[32]=" ";
+    char nf_input[32]=" ", nf_output[32]=" ";//nombre archivos
     char c_original[64] =" "; //cadena original
-    char *c_encript = NULL;
-    c_encript = new char[256]; //apuntador a cadena encriptada.
-    //Tamaño dinamico
+    char bin[64*8]="0";
+    int nBloques = 0;
+    int tam_cad = 0;
+    char **matrix;
+
+
 
     first_params(nf_input,nf_output); //semilla, metodo, nombre archivos
+    archivo_r_w(nf_output,nf_input,c_original,sizeof(c_original),bin,&tam_cad);
+    nBloques = tam_cad*8/n; //revisar para par impar
+
+    if(tam_cad%n != 0)nBloques++;
+    cout << "tamanio bloques: " << nBloques;
+    matrix = new char* [nBloques];
+    for(int i = 0; i<nBloques; i++){
+        matrix[i] = new char[n];
+    }
+    separar(matrix,bin,nBloques);
 
 
-    /**/
+    /*
+    cout << "Visualizacion matriz: \n";
+    for(int i = 0; i < nBloques; i++){
+        for(int j = 0; j< n; j++){
+            cout << *(*(matrix+i)+j) << " ";
+        }
+        cout << endl;
+    }*/
+
+    for(int i = 0; i<nBloques;i++)delete[] matrix[i];
+    delete[] matrix;
+    return 0;
+}
+void archivo_r_w(char nf_output[],char nf_input[],char c_original[],int s,char*bin, int *tam_cad){
+    /*Manipulacion archivo*/
     ifstream fin;               //stream de entrada, lectura
     ofstream fout;              //stream de salida, escritura
     try{
-        fout.open(nf_output);       //abre el archivo para escritura
-        if(!fout.is_open()){
-            throw '1';
-        }
-
+    //Lectura
         fin.open(nf_input);        //abre el archivo para lectura
         if(!fin.is_open()){
             throw '2';
         }
 
-
-        fin.getline(c_original,64); //leer linea del archivo y guardar en variable.
+        //leer linea del archivo y guardar en variable.
+        fin.getline(c_original,64);
         fin.seekg(0);
-    }
-    catch (char c){
-        cout<<"Error # "<<c<<": ";
-        if(c=='1'){
-            cout<<"Error al abrir el archivo para escritura.\n";
-        }
-        else if(c=='2'){
-            cout<<"Error al abrir el archivo para lectura.\n";
-        }
-    }
-    catch (...){
-        cout<<"Error no definido\n";
-    }
+
+        //tamaño real cadena original
+
+        *tam_cad = s_real(c_original,s);
 
 
 
-    //cin.getline(cadena1, sizeof(cadena1));      //lee una cadena con espacios
+        /*char* bin;
+        bin = new char[64*8];*/
+        //*(bin+(64*8)-1)='\0';
 
-
-
-    /**/
-    /*
-    char cadena1[15], cadena2[15], cadena3[15];
-    ifstream fin;               //stream de entrada, lectura
-    ofstream fout;              //stream de salida, escritura
-
-    cout<<"Ingrese una palabra: ";
-    cin>>cadena1;                          //lee una cadena sin espacios
-
-    //cin.getline(cadena1, sizeof(cadena1));      //lee una cadena con espacios
-
-    try{
-        fout.open("archivo2.txt");       //abre el archivo para escritura
+        //convertir a texto binario
+        c_bin(c_original,*tam_cad,bin);
+        fin.close();
+    //Escritura
+        fout.open(nf_output);       //abre el archivo para escritura
         if(!fout.is_open()){
             throw '1';
         }
-        fout<<cadena1;                     //escribe la palabra
-        fout.close();                   //cierra el archivo
-
-        fin.open("archivo2.txt");        //abre el archivo para lectura
-        if(!fin.is_open()){
-            throw '2';
-        }
-
-
-
-        fin.getline(cadena3,15);           //lee una linea y la almacena en cadena3
-
-        fin.seekg(0);                   //vuelve al principio del archivo
-
-        int i=0;
-        while(fin.good()){              //lee caracter a caracter hasta el fin del archivo
-            char temp=fin.get();
-            if(fin.good()){
-                cadena2[i]=temp;     //Asigna cada caracter leido a la cadena de caracteres
-            }
-            i++;
-        }
-        fin.close();                //Cierra el archivo de lectura.
-
-
+        fout<<bin;                     //escribe la palabra
+        fout.close();
+        //delete [] bin;
     }
+
     catch (char c){
         cout<<"Error # "<<c<<": ";
         if(c=='1'){
@@ -110,17 +101,71 @@ int main()
         cout<<"Error no definido\n";
     }
 
-    if(compare(cadena1, cadena2) && compare(cadena1, cadena3))
-        cout<<"Funciona!!!!\n";
-    else
-        cout<<"Error en la lectura de los datos!!!!\n";
+}
 
+void separar(char ** array2d,char* cad, int nBloques){
+    int cont = 0;
+
+    /*int nBloques = size/n; //revisar para par impar
+
+    if(size%n != 0)nBloques++;*/
+    //Inicializar la Matriz en 0.
+    for(int i = 0; i<nBloques;i++){
+        for(int j = 0; j<n;j++ ){
+            *(*(array2d+i)+j)='0';
+            cont++;
+        }
+    }
+
+    cont = 0;
+    for(int i = 0; i<nBloques;i++){
+        for(int j = 0; j<n;j++ ){
+            *(*(array2d+i)+j)=*(cad+cont);
+
+            cont++;
+        }
+
+    }
+}
+int s_real(char* cad, int s){
+    /*Conoce tamaño real de la cadena*/
+    int tam_real = 0;
+    for(int i = 0; i< s;i++){
+        if(cad[i] == '\0')break;
+        tam_real++;
+    }
+    return tam_real;
+}
+void c_bin(char* cad,int tam_real,char* bin){
+    /*
+      *cad: cadena original
+      tam_real: tamaño real de la cadena
+      *bin: cadena para guardar binario
     */
-    delete[] c_encript;
-    return 0;
+
+    int ltr =0;
+    int cont = 7; //contar en que letra voy
+    //[...,...,...]
+    for(int i = 0; i<tam_real;i++){
+        ltr = cad[i];
+        int res = 0;
+        for(int j = 0; j<8;j++){
+            res = ltr%2;
+            ltr = ltr/2;
+
+            bin[cont-j] = char(res+48);
+        }
+        cont+=8;
+    }
+
+
 }
 void first_params(char in[], char ou[]){
-    //Usuario ingresa semilla, metodo y nombres de archivos.
+    /*Usuario ingresa semilla, metodo y nombres de archivos.
+    in[]: nombre achivo lectura
+    ou[]: nombre archivo escritura
+    n y metodo son variables globales, unicas.
+    */
 
 
     cout << "Ingresa semilla: " << endl;
@@ -134,16 +179,7 @@ void first_params(char in[], char ou[]){
     cin >> ou;
 
 }
-void c_bin(char *msg){
-    int ltr =0;
-    char bin;
-    for(int i = 0; i<26;i++){
-        ltr = msg[i];
-        for(int j = 0; j<8;j++){
 
-        }
-    }
-}
 bool compare(char* a, char* b){
     unsigned int i;
     bool out = true;
