@@ -115,7 +115,7 @@ void archivo_r_w(char nf_output[],char nf_input[],char c_original[],int s,char*b
 
         //char* bin;
         // bin = new char[64*8];
-        //*(bin+(64*8)-1)='\0';
+        // (bin+(64*8)-1)='\0';
 
         //convertir a texto binario
         c_bin(c_original,*tam_cad,bin);

@@ -4,75 +4,163 @@
 using namespace std;
 int n = 0;
 int metodo = 0;
-
+void invertir(char[],int,int); //bloque y frecuencia/condicion para invertir
+int contarbins(char[],int semilla);
+void encripting(char[],int);
 int s_real(char*,int);
 void c_bin(char*,int,char*);
 void first_params(char[],char[]);
-void archivo_r_w(char[], char[], char[], int, char*, int *tam_cad);
+
 
 void separar(char **, char*, int);
 
-void lectura(char *nf_input, char* c_original, int size_cad, char *bin, int *tam_cad);
+void lectura(char *nf_input, char* c_original, int size_cad, char *bin, int tam_cad);
 void escritura();
 
 void regla();
 bool compare(char* a, char* b); //Función para comparar si las cadenas de caracteres son iguales.
 int main()
 {
-    char nf_input[32]=" ", nf_output[32]=" ";//nombre archivos
-    char c_original[64] =" "; //cadena original
-    char bin[64*8]="0"; // ?
-    int nBloques = 0;
-    int tam_cad = 0;
-    char **matrix;
-
-
-
+    char nf_input[64]=" ", nf_output[64]=" ";//nombre archivos
     first_params(nf_input,nf_output); //semilla, metodo, nombre archivos
-    //archivo_r_w(nf_output,nf_input,c_original,sizeof(c_original),bin,&tam_cad);
-    lectura(nf_input,c_original,sizeof(c_original),bin,&tam_cad);
-    nBloques = tam_cad*8/n;
 
-    if(tam_cad*8%n != 0)nBloques++;//revisa division exacta
-    matrix = new char* [nBloques];
-    for(int i = 0; i<nBloques; i++){
-        matrix[i] = new char[n];
-    }
-    separar(matrix,bin,nBloques);
+
+    char c_original[256] =" "; //cadena original
+    char bin[256*8]="0"; // ?
+    int tam_cad = 0;
+
+    lectura(nf_input,c_original,sizeof(c_original),bin,tam_cad);
 
 
 
-    cout << "Visualizacion matriz: \n";
-    for(int i = 0; i < nBloques; i++){
-        for(int j = 0; j< n; j++){
-            cout << *(*(matrix+i)+j) << " ";
-        }
-        cout << endl;
-    }
-
-    for(int i = 0; i<nBloques;i++)delete[] matrix[i];
-    delete[] matrix;
     return 0;
 }
-void lectura(char *nf_input, char* c_original, int size_cad, char *bin, int *tam_cad){
+void invertir(char actual[], int freq,int semilla){
+    if(!(freq>semilla)){
+        if(freq ==0){
+            for(int i = 0;i<semilla;i++){
+                if(actual[i]=='1')cout << '0';
+                else cout << '1';
+            }
+        }else{
+            int n = 1;
+            for(int i = 0;i<semilla;i++){
+                if(i == (freq*n)-1){
+                    if(actual[i]=='1')cout << '0';
+                    else{
+                        cout << '1';
+                    }
+                    n++;
+                }else{
+                    cout << actual[i];
+                }
+
+            }
+        }
+
+    }else{
+        for(int i = 0;i<semilla;i++){
+            cout << actual[i];
+        }
+    }
+}
+int contarbins(char anterior[], int semilla){
+    int unos = 0;
+    int ceros = 0;
+    for(int i = 0; i<semilla;i++){
+        if(anterior[i]=='1')unos++;
+        else ceros++;
+    }
+    //cout << endl << "cantidad 0s " << ceros << endl;
+    if(unos==ceros)return 0;
+    if(ceros > unos)return 2;
+    else return 3;
+}
+void encripting(char binario[],int nBloques){
+    char *anterior= new char [n];
+    char *actual = new char [n];
+
+    int semilla = 4;
+
+    int cont =0;
+    //para el primer bloque
+    for(int i = 0; i<semilla;i++){
+        anterior[i]=binario[i];
+        if(binario[i]=='0'){
+            cout << 1;
+        }else{
+            cout << 0;
+        }
+        cont++;//me dice en que posición va.
+    }
+    //para el resto de bloques
+
+    for(int i = 1; i<nBloques;i++){
+        for(int j=0;j<semilla;j++){
+            actual[j]= binario[cont];//actualiza bloque actual
+            cont++;
+        }
+        //hacer operacion
+        invertir(actual,contarbins(anterior,semilla),semilla);
+        for(int j=0;j<semilla;j++){
+            anterior[j]= actual[j];//actualiza anterior
+        }
+
+    }
+
+    delete[] actual;
+    delete[] anterior;
+}
+void lectura(char *nf_input, char* cad_linea, int size_cad, char *bin, int tam_cad){
     ifstream fin;               //stream de entrada, lectura
     ofstream fout;              //stream de salida, escritura
+    int nBloques = 0;
     try{
     //Lectura
         fin.open(nf_input);        //abre el archivo para lectura
         if(!fin.is_open()){
             throw '2';
         }
+        int saltos = 0;
 
+        while(fin.good()){ //lee caracter a caracter hasta el fin del archivo
+            char temp=fin.get();
+            if(fin.good()){
+                if(temp == '\n'){
+                    saltos++;
+                }
+            }
+
+        }
+        fin.close();
+
+        //volver a abrir para evitar problemas.
+        fin.open(nf_input);
+        if(!fin.is_open()){
+            throw '2';
+        }
         //leer linea del archivo y guardar en variable.
-        fin.getline(c_original,64);
-        fin.seekg(0);
+        if(saltos == 0){
+            fin.getline(cad_linea,256);//((((revisar que es necesario cambiar))))***
+            tam_cad = s_real(cad_linea,size_cad);//longitud real de cada linea
+            c_bin(cad_linea,tam_cad,bin);
+            nBloques = tam_cad*8/n;
+            if(tam_cad*8%n != 0)nBloques++;//revisa division exacta
+            encripting(bin,nBloques);
+        }else{
+            for(int c = 0; c<=saltos;c++){
+                fin.getline(cad_linea,256);//extrae linea a linea.
+                tam_cad = s_real(cad_linea,size_cad);//longitud real de cada linea
+                c_bin(cad_linea,tam_cad,bin);
+                nBloques = tam_cad*8/n;
+                if(tam_cad*8%n != 0)nBloques++;//revisa division exacta
+                encripting(bin,nBloques);
+                cout << endl;
 
-        //tamaño real cadena original
-
-        *tam_cad = s_real(c_original,size_cad);
-        //convertir a texto binario
-        c_bin(c_original,*tam_cad,bin);
+                //[HACE FALTA REVISAR COMO ESCRIBIRLO CORRECTAMENTE
+                // EN EL ARCHIVO]
+            }
+        }
         fin.close();
 
     }
@@ -91,58 +179,7 @@ void lectura(char *nf_input, char* c_original, int size_cad, char *bin, int *tam
     }
 
 }
-void archivo_r_w(char nf_output[],char nf_input[],char c_original[],int s,char*bin, int *tam_cad){
-    /*Manipulacion archivo*/
-    ifstream fin;               //stream de entrada, lectura
-    ofstream fout;              //stream de salida, escritura
-    try{
-    //Lectura
-        fin.open(nf_input);        //abre el archivo para lectura
-        if(!fin.is_open()){
-            throw '2';
-        }
 
-        //leer linea del archivo y guardar en variable.
-        fin.getline(c_original,64);
-        fin.seekg(0);
-
-        //tamaño real cadena original
-
-        *tam_cad = s_real(c_original,s);
-
-
-
-        /*char* bin;
-        bin = new char[64*8];*/
-        //*(bin+(64*8)-1)='\0';
-
-        //convertir a texto binario
-        c_bin(c_original,*tam_cad,bin);
-        fin.close();
-    //Escritura
-        fout.open(nf_output);       //abre el archivo para escritura
-        if(!fout.is_open()){
-            throw '1';
-        }
-        fout<<bin;                     //escribe la palabra
-        fout.close();
-        //delete [] bin;
-    }
-
-    catch (char c){
-        cout<<"Error # "<<c<<": ";
-        if(c=='1'){
-            cout<<"Error al abrir el archivo para escritura.\n";
-        }
-        else if(c=='2'){
-            cout<<"Error al abrir el archivo para lectura.\n";
-        }
-    }
-    catch (...){
-        cout<<"Error no definido\n";
-    }
-
-}
 
 void regla(){
     /*
@@ -247,13 +284,3 @@ void first_params(char in[], char ou[]){
 
 }
 
-bool compare(char* a, char* b){
-    unsigned int i;
-    bool out = true;
-    for(i=0;a[i]!=0 && b[i]!=0;i++){
-        if(a[i]!=b[i]){
-            out =  false;
-        }
-    }
-    return out;
-}
