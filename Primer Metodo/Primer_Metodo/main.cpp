@@ -2,64 +2,84 @@
 #include <fstream>
 #include <sstream>
 using namespace std;
-int n = 0;
+int n = 4;
 int metodo = 0;
-void invertir(char[],int,int); //bloque y frecuencia/condicion para invertir
+void invertir(char[],int,int,char[],int*); //bloque y frecuencia/condicion para invertir
 int contarbins(char[],int semilla);
-void encripting(char[],int);
+void encripting(char[], int, char*, int *cont);
 int s_real(char*,int);
 void c_bin(char*,int,char*);
 void first_params(char[],char[]);
 
 
-void separar(char **, char*, int);
 
-void lectura(char *nf_input, char* c_original, int size_cad, char *bin, int tam_cad);
+
+void lectura(char *nf_ouput,char *nf_input, char* c_original, int size_cad, char *bin, int tam_cad);
 void escritura();
 
 void regla();
-bool compare(char* a, char* b); //Función para comparar si las cadenas de caracteres son iguales.
+
 int main()
 {
-    char nf_input[64]=" ", nf_output[64]=" ";//nombre archivos
-    first_params(nf_input,nf_output); //semilla, metodo, nombre archivos
+    //char nf_input[64]=" ", nf_output[64]=" ";//nombre archivos
+    //first_params(nf_input,nf_output); //semilla, metodo, nombre archivos
 
+    char nf_input[64] = "test.txt";
+    char nf_output[64] = "encripted.txt";
 
     char c_original[256] =" "; //cadena original
     char bin[256*8]="0"; // ?
     int tam_cad = 0;
 
-    lectura(nf_input,c_original,sizeof(c_original),bin,tam_cad);
+    lectura(nf_output,nf_input,c_original,sizeof(c_original),bin,tam_cad);
 
 
 
     return 0;
 }
-void invertir(char actual[], int freq,int semilla){
+void invertir(char actual[], int freq,int semilla,char *pegar,int *cont){
+
     if(!(freq>semilla)){
         if(freq ==0){
             for(int i = 0;i<semilla;i++){
-                if(actual[i]=='1')cout << '0';
-                else cout << '1';
+                if(actual[i]=='1'){
+                    pegar[*cont]='0';
+                    cout << '0';
+                }else{
+                    pegar[*cont] = '1';
+                    cout << '1';
+                }
+                (*cont)++;
+
             }
         }else{
-            int n = 1;
+            int m = 1;
             for(int i = 0;i<semilla;i++){
-                if(i == (freq*n)-1){
-                    if(actual[i]=='1')cout << '0';
+                if(i == (freq*m)-1){
+                    if(actual[i]=='1'){
+                        pegar[*cont]='0';
+                        cout << '0';
+                    }
                     else{
+                        pegar[*cont]='1';
                         cout << '1';
                     }
-                    n++;
+                    m++;
                 }else{
+                    pegar[*cont]= actual[i];
                     cout << actual[i];
                 }
+                (*cont)++;
+
 
             }
         }
 
     }else{
         for(int i = 0;i<semilla;i++){
+            pegar[*cont]=actual[i];
+            (*cont)++;
+
             cout << actual[i];
         }
     }
@@ -76,32 +96,34 @@ int contarbins(char anterior[], int semilla){
     if(ceros > unos)return 2;
     else return 3;
 }
-void encripting(char binario[],int nBloques){
+void encripting(char binario[],int nBloques, char*pegar,int *cont){
     char *anterior= new char [n];
     char *actual = new char [n];
 
-    int semilla = 4;
+    int semilla = n;
+    int c = 0;
 
-    int cont =0;
     //para el primer bloque
     for(int i = 0; i<semilla;i++){
         anterior[i]=binario[i];
         if(binario[i]=='0'){
+            pegar[*cont] = '1';
             cout << 1;
         }else{
             cout << 0;
+            pegar[*cont]='0';
         }
-        cont++;//me dice en que posición va.
+        (*cont)++;//me dice en que posición va.
     }
     //para el resto de bloques
-
+    c = *cont; //variable auxiliar
     for(int i = 1; i<nBloques;i++){
         for(int j=0;j<semilla;j++){
-            actual[j]= binario[cont];//actualiza bloque actual
-            cont++;
+            actual[j]= binario[c];//actualiza bloque actual
+            c++;
         }
         //hacer operacion
-        invertir(actual,contarbins(anterior,semilla),semilla);
+        invertir(actual,contarbins(anterior,semilla),semilla,pegar,cont);
         for(int j=0;j<semilla;j++){
             anterior[j]= actual[j];//actualiza anterior
         }
@@ -111,7 +133,7 @@ void encripting(char binario[],int nBloques){
     delete[] actual;
     delete[] anterior;
 }
-void lectura(char *nf_input, char* cad_linea, int size_cad, char *bin, int tam_cad){
+void lectura(char *nf_ouput,char *nf_input, char* cad_linea, int size_cad, char *bin, int tam_cad){
     ifstream fin;               //stream de entrada, lectura
     ofstream fout;              //stream de salida, escritura
     int nBloques = 0;
@@ -139,28 +161,57 @@ void lectura(char *nf_input, char* cad_linea, int size_cad, char *bin, int tam_c
         if(!fin.is_open()){
             throw '2';
         }
+
+        fout.open(nf_ouput);
+        if(!fout.is_open()){
+            throw '1';
+        }
         //leer linea del archivo y guardar en variable.
+
         if(saltos == 0){
             fin.getline(cad_linea,256);//((((revisar que es necesario cambiar))))***
             tam_cad = s_real(cad_linea,size_cad);//longitud real de cada linea
             c_bin(cad_linea,tam_cad,bin);
             nBloques = tam_cad*8/n;
             if(tam_cad*8%n != 0)nBloques++;//revisa division exacta
-            encripting(bin,nBloques);
+            char pegar[256*8];
+            int cont = 0;
+            encripting(bin,nBloques,pegar,&cont);
+
+            fout << pegar;
+
+
+
         }else{
             for(int c = 0; c<=saltos;c++){
                 fin.getline(cad_linea,256);//extrae linea a linea.
                 tam_cad = s_real(cad_linea,size_cad);//longitud real de cada linea
+                char pegar[tam_cad*8];
+                int cont = 0;
                 c_bin(cad_linea,tam_cad,bin);
                 nBloques = tam_cad*8/n;
                 if(tam_cad*8%n != 0)nBloques++;//revisa division exacta
-                encripting(bin,nBloques);
+
+                encripting(bin,nBloques,pegar,&cont);
+
+                cout << "CADENA A PEGAR: ";
+                for(int z = 0; z<tam_cad*8;z++){
+                    fout << pegar[z];
+                    cout << pegar[z];
+                }
                 cout << endl;
+                fout << '\n';
+
+
+
 
                 //[HACE FALTA REVISAR COMO ESCRIBIRLO CORRECTAMENTE
                 // EN EL ARCHIVO]
+
             }
+
         }
+        fout.close();
         fin.close();
 
     }
@@ -177,6 +228,7 @@ void lectura(char *nf_input, char* cad_linea, int size_cad, char *bin, int tam_c
     catch (...){
         cout<<"Error no definido\n";
     }
+
 
 }
 
