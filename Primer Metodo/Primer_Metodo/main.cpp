@@ -8,32 +8,25 @@ void invertir(char[],int,int,char[],int*); //bloque y frecuencia/condicion para 
 int contarbins(char[],int semilla);
 void encripting(char[], int, char*, int *cont);
 int s_real(char*,int);
-void c_bin(char*,int,char*);
+void c_bin(char*,int,char*,int);
 void first_params(char[],char[]);
 
 
 
 
-void lectura(char *nf_ouput,char *nf_input, char* c_original, int size_cad, char *bin, int tam_cad);
-void escritura();
+void lectura(char *nf_ouput,char *nf_input, char* c_original, int size_cad,int tam_cad);
 
-void regla();
 
 int main()
 {
-    //char nf_input[64]=" ", nf_output[64]=" ";//nombre archivos
-    //first_params(nf_input,nf_output); //semilla, metodo, nombre archivos
-
-    char nf_input[64] = "test.txt";
-    char nf_output[64] = "encripted.txt";
+    char nf_input[64]=" ", nf_output[64]=" ";//nombre archivos
+    first_params(nf_input,nf_output); //semilla, metodo, nombre archivos
 
     char c_original[256] =" "; //cadena original
-    char bin[256*8]="0"; // ?
+
     int tam_cad = 0;
 
-    lectura(nf_output,nf_input,c_original,sizeof(c_original),bin,tam_cad);
-
-
+    lectura(nf_output,nf_input,c_original,sizeof(c_original),tam_cad);
 
     return 0;
 }
@@ -44,10 +37,10 @@ void invertir(char actual[], int freq,int semilla,char *pegar,int *cont){
             for(int i = 0;i<semilla;i++){
                 if(actual[i]=='1'){
                     pegar[*cont]='0';
-                    cout << '0';
+
                 }else{
                     pegar[*cont] = '1';
-                    cout << '1';
+
                 }
                 (*cont)++;
 
@@ -58,16 +51,16 @@ void invertir(char actual[], int freq,int semilla,char *pegar,int *cont){
                 if(i == (freq*m)-1){
                     if(actual[i]=='1'){
                         pegar[*cont]='0';
-                        cout << '0';
+
                     }
                     else{
                         pegar[*cont]='1';
-                        cout << '1';
+
                     }
                     m++;
                 }else{
                     pegar[*cont]= actual[i];
-                    cout << actual[i];
+
                 }
                 (*cont)++;
 
@@ -79,8 +72,6 @@ void invertir(char actual[], int freq,int semilla,char *pegar,int *cont){
         for(int i = 0;i<semilla;i++){
             pegar[*cont]=actual[i];
             (*cont)++;
-
-            cout << actual[i];
         }
     }
 }
@@ -102,15 +93,15 @@ void encripting(char binario[],int nBloques, char*pegar,int *cont){
 
     int semilla = n;
     int c = 0;
-
+    for(int z = 0; z<(nBloques*semilla);z++)pegar[z]='0'; //inicializa cadena en 0.
     //para el primer bloque
     for(int i = 0; i<semilla;i++){
         anterior[i]=binario[i];
         if(binario[i]=='0'){
             pegar[*cont] = '1';
-            cout << 1;
+
         }else{
-            cout << 0;
+
             pegar[*cont]='0';
         }
         (*cont)++;//me dice en que posición va.
@@ -133,7 +124,7 @@ void encripting(char binario[],int nBloques, char*pegar,int *cont){
     delete[] actual;
     delete[] anterior;
 }
-void lectura(char *nf_ouput,char *nf_input, char* cad_linea, int size_cad, char *bin, int tam_cad){
+void lectura(char *nf_ouput,char *nf_input, char* cad_linea, int size_cad, int tam_cad){
     ifstream fin;               //stream de entrada, lectura
     ofstream fout;              //stream de salida, escritura
     int nBloques = 0;
@@ -170,37 +161,49 @@ void lectura(char *nf_ouput,char *nf_input, char* cad_linea, int size_cad, char 
 
         if(saltos == 0){
             fin.getline(cad_linea,256);//((((revisar que es necesario cambiar))))***
-            tam_cad = s_real(cad_linea,size_cad);//longitud real de cada linea
-            c_bin(cad_linea,tam_cad,bin);
-            nBloques = tam_cad*8/n;
-            if(tam_cad*8%n != 0)nBloques++;//revisa division exacta
-            char pegar[256*8];
-            int cont = 0;
-            encripting(bin,nBloques,pegar,&cont);
+            // REVISAR CUANDO SEMILLA > TAM CAD*8
 
-            fout << pegar;
+            tam_cad = s_real(cad_linea,size_cad);//longitud real de cada linea
+            if(tam_cad>0){
+
+                nBloques = tam_cad*8/n;
+                if(tam_cad*8%n != 0)nBloques++;//revisa division exacta
+                char pegar[nBloques*n];
+                int cont = 0;
+                char bin[nBloques*n];
+                c_bin(cad_linea,tam_cad,bin,nBloques);//convierte cade a binario
+
+                encripting(bin,nBloques,pegar,&cont);
+                for(int z = 0; z<nBloques*n;z++){
+                    fout << pegar[z];                    
+                }
+
+            }
+
 
 
 
         }else{
             for(int c = 0; c<=saltos;c++){
+                // REVISAR CUANDO SEMILLA > TAM CAD*8
                 fin.getline(cad_linea,256);//extrae linea a linea.
                 tam_cad = s_real(cad_linea,size_cad);//longitud real de cada linea
-                char pegar[tam_cad*8];
-                int cont = 0;
-                c_bin(cad_linea,tam_cad,bin);
-                nBloques = tam_cad*8/n;
-                if(tam_cad*8%n != 0)nBloques++;//revisa division exacta
 
-                encripting(bin,nBloques,pegar,&cont);
+                if(tam_cad>0){
+                    int cont = 0;                    
+                    nBloques = tam_cad*8/n;
+                    if(tam_cad*8%n != 0)nBloques++;//revisa division exacta
+                    char bin[tam_cad*8];
+                    char pegar[nBloques*n];
+                    c_bin(cad_linea,tam_cad,bin,nBloques);
+                    encripting(bin,nBloques,pegar,&cont);
+                    for(int z = 0; z<nBloques*n;z++){
+                        fout << pegar[z];
+                    }
 
-                cout << "CADENA A PEGAR: ";
-                for(int z = 0; z<tam_cad*8;z++){
-                    fout << pegar[z];
-                    cout << pegar[z];
+                    fout << '\n';
                 }
-                cout << endl;
-                fout << '\n';
+
 
 
 
@@ -259,30 +262,6 @@ void regla(){
     */
 }
 
-void separar(char ** array2d,char* cad, int nBloques){
-    int cont = 0;
-
-    /*int nBloques = size/n; //revisar para par impar
-    if(size%n != 0)nBloques++;*/
-
-    //Inicializar la Matriz en 0.
-    for(int i = 0; i<nBloques;i++){
-        for(int j = 0; j<n;j++ ){
-            *(*(array2d+i)+j)='0';
-            cont++;
-        }
-    }
-    cont = 0;
-
-    for(int i = 0; i<nBloques;i++){
-        for(int j = 0; j<n;j++ ){
-            if(*(cad+cont)=='\0')break;
-            *(*(array2d+i)+j)=*(cad+cont);
-            cont++;
-        }
-
-    }
-}
 int s_real(char* cad, int s){
     /*Conoce tamaño real de la cadena*/
     int tam_real = 0;
@@ -292,13 +271,15 @@ int s_real(char* cad, int s){
     }
     return tam_real;
 }
-void c_bin(char* cad,int tam_real,char* bin){
+void c_bin(char* cad,int tam_real,char* bin,int nBloques){
     /*
       *cad: cadena original
       tam_real: tamaño real de la cadena
       *bin: cadena para guardar binario
     */
-
+    for(int i = 0; i<nBloques*n;i++){
+        bin[i]= '0';
+    }
     int ltr =0;
     int cont = 7; //contar en que letra voy
     //[...,...,...]
