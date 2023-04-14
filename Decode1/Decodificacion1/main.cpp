@@ -12,6 +12,7 @@ void invertir(char actual[], int freq,int semilla,char *pegar,int *cont);
 int contarbins(char anterior[], int semilla);
 void first_params(char[],char[]);
 int s_real(char* cad, int s);
+bool compare(char* a, char* b);
 int main()
 {
     char nf_input[64]=" ", nf_output[64]=" ";//nombre archivos
@@ -168,8 +169,10 @@ void lectura(char *nf_ouput,char *nf_input, char* bin_linea, int size_cad){
             if(tam_cad>0){
                 int cont = 0;
                 nBloques = tam_cad/n;
-                char pegar[nBloques*n];
+                //char pegar[nBloques*n];
+                char *pegar = new char[nBloques*n];
                 char temp[8];
+                char u[9]="11111111"; char cer[9] = "00000000";
                 //c_bin(cad_linea,tam_cad,bin,nBloques);
                 switch (metodo) {
                 case 1:
@@ -185,15 +188,17 @@ void lectura(char *nf_ouput,char *nf_input, char* bin_linea, int size_cad){
 
                 int aux = 0;
                 for(int j = 0;j<tam_cad/8;j++){
-                    for(int c = 0; c<7;c++){
+                    for(int c = 0; c<8;c++){
                         temp[c]=pegar[aux];
                         aux++;
                     }
-                    fout<< bin_to_char(temp);
+                    if(!(compare(temp,u)||compare(temp,cer)))
+                        fout<< bin_to_char(temp);
                 }
                 //for(int z = 0; z<nBloques*n;z++){
                   //  fout << pegar[z];
                 //}
+                delete[] pegar;
             }
         }else{
             for(int c = 0; c<=saltos;c++){
@@ -205,7 +210,8 @@ void lectura(char *nf_ouput,char *nf_input, char* bin_linea, int size_cad){
                 if(tam_cad>0){
                     int cont = 0;
                     nBloques = tam_cad/n;
-                    char pegar[nBloques*n];
+                    char *pegar = new char[nBloques*n];
+                    char u[9]="11111111"; char cer[9] = "00000000";
                     //char caracter;
                     char temp[8];
                     //c_bin(cad_linea,tam_cad,bin,nBloques);
@@ -222,17 +228,21 @@ void lectura(char *nf_ouput,char *nf_input, char* bin_linea, int size_cad){
                     }
                     int aux = 0;
                     for(int j = 0;j<tam_cad/8;j++){
-                        for(int c = 0; c<7;c++){
+                        for(int c = 0; c<8;c++){
                             temp[c]=pegar[aux];
                             aux++;
                         }
-                        fout<< bin_to_char(temp);
+
+                        if(!(compare(temp,u)||compare(temp,cer)))
+                            fout<< bin_to_char(temp);
+
                     }
                     //for(int z = 0; z<nBloques*n;z++){
                       //  fout << pegar[z];
                     //}
 
                     fout << '\n';
+                    delete[] pegar;
                 }
 
             }
@@ -284,4 +294,14 @@ void first_params(char in[], char ou[]){
     cout << "Ingrese nombre archivo de salida: ";
     cin >> ou;
 
+}
+bool compare(char* a, char* b){
+    unsigned int i;
+    bool out = true;
+    for(i=0;i<8;i++){
+        if(a[i]!=b[i]){
+            out =  false;
+        }
+    }
+    return out;
 }

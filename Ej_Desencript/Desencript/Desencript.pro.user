@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 9.0.1, 2023-04-13T20:28:08. -->
+<!-- Written by QtCreator 9.0.1, 2023-04-13T22:13:11. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -236,13 +236,15 @@
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:D:/Estudio/OneDrive - Universidad de Antioquia/Estudio/Materias/Informatica II/Ejemplos/Ej_Desencript/Desencript/Desencript.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/Estudio/OneDrive - Universidad de Antioquia/Estudio/Materias/Informatica II/Ejemplos/Ej_Desencript/Desencript/Desencript.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Desencript2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:D:/Estudio/OneDrive - Universidad de Antioquia/Estudio/Materias/Informatica II/Laboratorio/Practica 3/Ej_Desencript/Desencript/Desencript.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/Estudio/OneDrive - Universidad de Antioquia/Estudio/Materias/Informatica II/Laboratorio/Practica 3/Ej_Desencript/Desencript/Desencript.pro</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+    <value type="bool" key="RunConfiguration.UseTerminal">true</value>
     <value type="QString" key="RunConfiguration.WorkingDirectory.default">D:/Estudio/OneDrive - Universidad de Antioquia/Estudio/Materias/Informatica II/Ejemplos/Ej_Desencript/build-Desencript-Desktop_Qt_6_2_4_MinGW_64_bit-Debug</value>
    </valuemap>
    <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
