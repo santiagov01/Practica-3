@@ -88,6 +88,9 @@ int contarbins(char anterior[], int semilla){
     else return 3;
 }
 void encripting(char binario[],int nBloques, char*pegar,int *cont){
+    /*Hace reglas del primer metodo
+    Se regresa cadena codificada "pegar" por referencia*/
+
     char *anterior= new char [n];
     char *actual = new char [n];
 
