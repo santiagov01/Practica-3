@@ -41,8 +41,8 @@ string decode(string binario,int nBloques, string pegar,int *cont);
 
 int main()
 {
-    lectura();
-    //menu_general();
+    //lectura();
+    menu_general();
     return 0;
 }
 void menu_general(){
@@ -50,7 +50,7 @@ void menu_general(){
 
     while(opc!= -1){
         cout << "Ingresa opcion: (Pulse -1 para salir)" <<endl;
-        cout << "1. Ingresar como admin \n2. Ingresar como usuario.";
+        cout << "1. Ingresar como admin \n2. Ingresar como usuario.\n";
         cin >> opc;
         switch (opc) {
         case 1:
@@ -69,7 +69,7 @@ void menu_admin(){
     //char clave[64]="0";
     string clave;
     cout << "Ingresa tu clave: ";
-    getline(cin,clave);
+    cin >> clave;
     if(clave==lectura()){
         menu_registrar();
     }else cout << "ACCESO DENEGADO!!!" << endl;
@@ -78,9 +78,9 @@ void menu_admin(){
 }
 
 void menu_registrar(){
-    char ced[10];
-    char clave[32];
-    char saldo[32];
+    char ced[14]=" ";
+    char clave[32]=" ";
+    char saldo[32] =" ";
     char pegar[74];
     cout << "Ingresa cedula del usuario: " << endl;
     cin >> ced;
@@ -92,10 +92,12 @@ void menu_registrar(){
         cin >> saldo;
         concatenar(ced,clave,saldo,pegar);
         escribir_usuarios(pegar);
+    }else{
+        cout << "LA CEDULA YA EXISTE!!!!";
     }
 }
 bool verificar_cedula(char cedula[]){
-    char cadena[20];
+    char cadena[128]=" ";
     ifstream fin;               //stream de entrada, lectura
     ofstream fout;              //stream de salida, escritura
     char name_file[64] = "users.txt";//Solo será de lectura
@@ -121,16 +123,19 @@ bool verificar_cedula(char cedula[]){
         if(!fin.is_open()){
             throw '2';
         }
-        char **lista_individual = new char* [3];
 
+        char **lista_individual = new char* [3];
         for(int i = 0; i<3; i++){
             lista_individual[i] = new char[32];
         }
 
         for(int i = 0; i<(saltos+1);i++){
-            fin.getline(cadena,32);
+
+
+            fin.getline(cadena,128);
             split(cadena,lista_individual,';',3);
             if(compare(cedula,lista_individual[0]))return true;//la cedula es la misma(ya existe)
+
         }
         for(int i = 0; i<3;i++)delete[] lista_individual[i];
         delete[] lista_individual;
@@ -150,8 +155,7 @@ bool verificar_cedula(char cedula[]){
     return false;
 }
 void escribir_usuarios(char* pegar){
-    /*Guardar en una matriz la infromación de cursos
-    */
+
     ifstream fin;               //stream de entrada, lectura
     ofstream fout;              //stream de salida, escritura
     char name_file[10] = "users.txt";//Solo será de lectura
@@ -174,9 +178,9 @@ void escribir_usuarios(char* pegar){
             }
         }
         fin.close();
-        char **lista_usuarios = new char* [saltos+1];
+        char **lista_usuarios = new char* [saltos+2];
         for(int i = 0; i<saltos+1; i++){
-            lista_usuarios[i] = new char[32];
+            lista_usuarios[i] = new char[128];
         }
 
         fin.open(name_file);
@@ -184,7 +188,7 @@ void escribir_usuarios(char* pegar){
             throw '2';
         }
         for(int i = 0; i<(saltos+1);i++){
-            fin.getline(lista_usuarios[i],20);//guardar en una lista
+            fin.getline(lista_usuarios[i],128);//guardar en una lista
         }
         fin.close();
         //ahora lo abre como escritura
@@ -224,7 +228,7 @@ bool validar_user(char *cedula,char *clave, char**data){
     //VALIDA CEDULA Y CLAVE
     //Ademas guarda los datos en una matriz para poder actualizarlos luego
 
-    char cadena[64];
+    char cadena[128] = " ";
     ifstream fin;               //stream de entrada, lectura
     ofstream fout;
     bool state = false;//stream de salida, escritura
@@ -258,7 +262,7 @@ bool validar_user(char *cedula,char *clave, char**data){
 
 
         for(int i = 0; i<(saltos+1);i++){
-            fin.getline(cadena,64);
+            fin.getline(cadena,128);
             char **lista_individual = new char* [3];
             for(int i = 0; i<3; i++){
                 lista_individual[i] = new char[64];
@@ -436,6 +440,7 @@ void split(char* cadena,char**subcadenas,char sep, int nf){
     //sep: caracter que representa la separación ';' '-' etc
     //nf: Cantidad de filas que tendrá la matriz.
     //Por ejemplo, al guardar cedula, clave, saldo
+
     int l = len_char(cadena);
     int c = -1;
     for(int i = 0; i<nf;i++){
@@ -443,7 +448,7 @@ void split(char* cadena,char**subcadenas,char sep, int nf){
         c++;
         while(cadena[c]!=sep){
             if(c==l) break;//verifica si recorre toda la cadena
-            subcadenas[i][j]=cadena[c];
+            *(*(subcadenas+i)+j)=*(cadena+c);
             j++;
             c++;//copia caracter a caracter en la matriz
         }
@@ -477,67 +482,7 @@ void concatenar(char *a,char*b,char*c,char*unir){
     delete[] concatenado;
 
 }
-void leer_usuarios(char cedula[])
-{
 
-
-    char cadena[20];
-    ifstream fin;
-    ofstream fout;
-    char name_file[64] = "users.txt";//Solo será de lectura
-    //Se supone que el archivo ya está creado (así sea vacio)
-
-    try{
-
-        fin.open(name_file);//abre el archivo para lectura
-        if(!fin.is_open()){
-            throw '2';
-        }
-        int saltos = 0;
-
-        while(fin.good()){ //lee caracter a caracter hasta el fin del archivo
-            char temp=fin.get();
-            if(fin.good()){
-                if(temp == '\n'){
-                    saltos++;//contar saltos de linea (cantidad cursos)
-                }
-            }
-        }
-        fin.close();
-        fin.open(name_file);
-        if(!fin.is_open()){
-            throw '2';
-        }
-        for(int i = 0; i<(saltos+1);i++){
-            fin.getline(cadena,20);
-
-            //convertir/formatear cadena a matriz(lista de arreglos char)
-
-        }
-
-    /*
-        int i=0;
-        while(fin.good()){              //lee caracter a caracter hasta el fin del archivo
-            char temp=fin.get();
-            if(fin.good()){
-                cadena2[i]=temp;     //Asigna cada caracter leido a la cadena de caracteres
-            }
-            i++;
-        }*/
-        fin.close();                //Cierra el archivo de lectura.
-
-
-    }
-    catch (char c){
-        cout<<"Error # "<<c<<": ";
-        if(c=='2'){
-            cout<<"Error al abrir el archivo para escritura.\n";
-        }
-    }
-    catch (...){
-        cout<<"Error no definido\n";
-    }
-}
 bool compare(char a[], char b[]){
     int t1 = len_char(a);
     int t2 = len_char(b);
@@ -714,17 +659,6 @@ string lectura(){
         if(!fin.is_open()){
             throw '2';
         }
-        int saltos = 0;
-
-        while(fin.good()){ //lee caracter a caracter hasta el fin del archivo
-            char temp=fin.get();
-            if(fin.good()){
-                if(temp == '\n'){
-                    saltos++;
-                }
-            }
-
-        }
         fin.close();
 
         //volver a abrir para evitar problemas.
@@ -779,7 +713,7 @@ string lectura(){
         cout<<"Error no definido en el archivo del admin\n";
     }
 
-
+    return decoded;
 }
 int contarbins(string ant ,int semilla){
     string anterior = ant;

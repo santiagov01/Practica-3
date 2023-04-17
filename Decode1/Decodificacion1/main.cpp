@@ -13,6 +13,7 @@ int contarbins(char anterior[], int semilla);
 void first_params(char[],char[]);
 int s_real(char* cad, int s);
 bool compare(char* a, char* b);
+void decode2(char binario[],int nBloques, char*pegar);
 int main()
 {
     char nf_input[64]=" ", nf_output[64]=" ";//nombre archivos
@@ -127,6 +128,35 @@ void decode(char binario[],int nBloques, char*pegar,int *cont){
     delete[] actual;
     delete[] anterior;
 }
+void decode2(char binario[],int nBloques, char*pegar){
+    char *temporal= new char [n]; //debe ser de la cadena a pegar
+    char *actual = new char [n];
+
+    int semilla = n;
+    int c = 0;
+    int c2 = 0;
+    for(int z = 0; z<(nBloques*semilla);z++)pegar[z]='0'; //inicializa cadena en 0.
+    //para el primer bloque
+    for(int k = 0;k<nBloques;k++){
+        for(int i = 0; i<semilla;i++){
+            temporal[i]=binario[c2];
+            c2++;
+        }
+        actual[n-1]=temporal[0];
+        for(int j = 0;j<n-1;j++){
+            actual[j] = temporal[j+1];
+        }
+        for(int i = 0; i<n;i++){
+            pegar[c]=actual[i];
+            cout << pegar[c];
+            c++;
+        }
+
+    }
+
+    delete[] actual;
+    delete[] temporal;
+}
 void lectura(char *nf_ouput,char *nf_input, char* bin_linea, int size_cad){
     ifstream fin;               //stream de entrada, lectura
     ofstream fout;              //stream de salida, escritura
@@ -178,10 +208,9 @@ void lectura(char *nf_ouput,char *nf_input, char* bin_linea, int size_cad){
                 switch (metodo) {
                 case 1:
                     decode(bin_linea,nBloques,pegar,&cont);
-
                     for(int j = 0;j<tam_cad/8;j++){
                         for(int c = 0; c<8;c++){
-                            temp[c]=pegar[aux];
+                            temp[c]=pegar[aux];//pegar será multiplo de 8
                             aux++;
                         }
                         if(!(compare(temp,u)||compare(temp,cer)))//los ceros o unos de relleno
@@ -189,12 +218,21 @@ void lectura(char *nf_ouput,char *nf_input, char* bin_linea, int size_cad){
                     }
                     break;
                 case 2:
-
+                    decode2(bin_linea,nBloques,pegar);
+                    for(int j = 0;j<tam_cad/8;j++){
+                        for(int c = 0; c<8;c++){
+                            temp[c]=pegar[aux];//pegar será multiplo de 8
+                            aux++;
+                        }
+                        if(!(compare(temp,u)||compare(temp,cer)))//los ceros o unos de relleno
+                            fout<< bin_to_char(temp);
+                    }
                     break;
                 default:
                     cout << "Debes ingresar el método correcto. ";
                     break;
                 }
+
 
 
                 //for(int z = 0; z<nBloques*n;z++){

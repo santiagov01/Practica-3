@@ -12,6 +12,7 @@ int contarbins(string anterior, int semilla);
 //string encripting(string binario,int nBloques,int *cont);
 void lectura(string nf_ouput,string nf_input);
 string decode(string binario,int nBloques, string pegar,int *cont);
+string decode(string binario,int nBloques, string pegar,int *cont);
 int main()
 {
     string nf_input, nf_output;//nombre archivos
