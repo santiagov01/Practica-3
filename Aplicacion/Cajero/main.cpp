@@ -2,6 +2,9 @@
 #include <string>
 #include <fstream>
 using namespace std;
+int n = 20;
+
+
 void menu_admin();
 void menu_general();
 void menu_user();
@@ -22,22 +25,31 @@ bool validar_user();
 bool compare(char* a, char* b);
 void concatenar(char*,char*,char*,char*);
 void consultar_saldo(char **data, char ced[], int saltos);
-void retirar_dinero();
+void retirar_dinero(char **data, char ced[], int saltos, int retirar);
 bool verificar_cedula(char[]);
 void intostr(int num, char *punter);
 int matoi(char array[], int s);
 int saltoschar();
 void actualizar_usuarios(char** pegar,int saltos);
+
+string c_bin(string cad, int tam_real,int nBloques);
+char bin_to_char(string binario);
+void invertir(string*actual, int freq,int semilla,string *pegar,int *cont);
+int contarbins(string anterior, int semilla);
+string lectura();
+string decode(string binario,int nBloques, string pegar,int *cont);
+
 int main()
 {
-    menu_general();
+    lectura();
+    //menu_general();
     return 0;
 }
 void menu_general(){
     int opc = 0;
 
     while(opc!= -1){
-        cout << "Ingresa opción: (Pulse -1 para salir)" <<endl;
+        cout << "Ingresa opcion: (Pulse -1 para salir)" <<endl;
         cout << "1. Ingresar como admin \n2. Ingresar como usuario.";
         cin >> opc;
         switch (opc) {
@@ -58,7 +70,7 @@ void menu_admin(){
     string clave;
     cout << "Ingresa tu clave: ";
     getline(cin,clave);
-    if(clave==leer_sudo()){
+    if(clave==lectura()){
         menu_registrar();
     }else cout << "ACCESO DENEGADO!!!" << endl;
 
@@ -305,14 +317,13 @@ void consultar_saldo(char **data, char ced[], int saltos){
             int saldo_copy = matoi(saldo,len_char(saldo));
             saldo_copy =saldo_copy-1000;
             char aux_saldo[32]="";
-
-            intostr(saldo_copy,aux_saldo);
-
-
-            concatenar(ced,clave,aux_saldo,pegar);
-            //Actualizar lista
-            for(int m = 0; m<len_char(pegar);m++){
-                data[i][m] = pegar[m];
+            if(saldo_copy>0){
+                intostr(saldo_copy,aux_saldo);
+                concatenar(ced,clave,aux_saldo,pegar);
+                //Actualizar lista
+                for(int m = 0; m<len_char(pegar);m++){
+                    data[i][m] = pegar[m];
+            }
             }
             cout << "Su saldo es: $";
             cout << saldo_copy;
@@ -331,6 +342,7 @@ void menu_user(){
     char  clave[32]= " ";
     int saltos = saltoschar();
     char **data= new char*[saltos+1];
+    int dinero = 0;
     cout << "Ingresa cedula: " << endl;
     cin >> ced;
     cout << "Ingresa clave: " << endl;
@@ -338,24 +350,78 @@ void menu_user(){
     if(validar_user(ced,clave,data)){
         cout << "Usuario correcto" << endl;
         int opc = 0;
+        cout << "Ingresa opcion(-1 para salir):\n1.Consultar Saldo\n2.Retirar Dinero" <<endl;
+        cin >> opc;
         while(opc!=-1){
-            cout << "Ingresa opcion(-1 para salir):\n1.Consultar Saldo\n2.Retirar Dinero" <<endl;
             switch (opc) {
             case 1:
                 consultar_saldo(data, ced,saltos);
+                actualizar_usuarios(data,saltos);
                 break;
             case 2:
-                retirar_dinero();
+                cout << "Ingresa cantidad a retirar: ";
+                cin >> dinero;
+                if(dinero >0){
+                    retirar_dinero(data, ced,saltos,dinero);
+                    actualizar_usuarios(data,saltos);
+                }else cout << "Cantidad debe ser positiva";
+
                 break;
             default:
                 break;
             }
+            cout << "Ingresa opcion(-1 para salir):\n1.Consultar Saldo\n2.Retirar Dinero" <<endl;
+            cin >> opc;
+
         }
 
-    }else cout << "No se pudo acceder";
+    }else cout << "\nNo se pudo acceder";
 
     for(int i = 0; i<saltos+1;i++)delete[] data[i];
     delete[] data;
+}
+void retirar_dinero(char **data, char ced[], int saltos, int retirar){
+
+    for(int i = 0; i<saltos+1;i++){
+        char clave[32] =" ";
+        char saldo[32] = " ";
+        char pegar[74] = " ";
+        char **lista_individual = new char* [3];
+        for(int j = 0; j<3; j++){
+            lista_individual[j] = new char[32];
+        }
+        split(data[i],lista_individual,';',3);
+        if(compare(ced,lista_individual[0])){
+            for(int c = 0; c< len_char(lista_individual[1]);c++){
+                clave[c] = lista_individual[1][c];
+            }
+            for(int c = 0; c< len_char(lista_individual[2]);c++){
+                saldo[c] = lista_individual[2][c];
+            }
+            int saldo_copy = matoi(saldo,len_char(saldo));
+            char aux_saldo[32]="";
+            saldo_copy = saldo_copy-retirar;
+            if(saldo_copy>0){
+                saldo_copy =saldo_copy-1000;
+
+                intostr(saldo_copy,aux_saldo);
+
+                concatenar(ced,clave,aux_saldo,pegar);
+                //Actualizar lista
+                for(int m = 0; m<len_char(pegar);m++){
+                    data[i][m] = pegar[m];
+                }
+
+            }else cout << "\nSaldo a retirar insuficiente!!!"<<endl;
+
+            break;
+        }
+        for(int i = 0; i<3;i++){
+            delete[] lista_individual[i];
+            }
+        delete[] lista_individual;
+
+    }
 }
 int len_char (char *p){
     int longitud=0;
@@ -562,7 +628,6 @@ void intostr(int num, char *punter){
        *(punter + i) = char(aux + 48);
        num/=10;
     }
-    cout << "aux: " << aux<<endl;
     if(aux==0){
         *(punter) = '0';
         *(punter+1) = '\0';
@@ -595,4 +660,195 @@ void actualizar_usuarios(char** pegar, int saltos){
     catch (...){
         cout<<"Error no definido\n";
     }
+}
+string decode(string binario,int nBloques, string pegar,int *cont){
+    string anterior;
+    string actual;
+    int semilla = n;
+    int c = 0;
+    for(int i = 0; i<n;i++){
+        //pegar.append("0");
+        anterior.append("0");
+        actual.append("0");
+    }
+    //for(int z = 0; z<(nBloques*semilla);z++)pegar.append("0"); //inicializa cadena en 0.
+    //para el primer bloque
+    for(int i = 0; i<semilla;i++){
+        //anterior[i]=binario[i];
+        if(binario[i]=='0'){
+            pegar[*cont] = '1';
+        }else{
+            pegar[*cont]='0';
+        }
+        (*cont)++;//me dice en que posición va.
+        anterior[i]=pegar[i];
+    }
+    //para el resto de bloques
+    c = *cont; //variable auxiliar
+    for(int i = 1; i<nBloques;i++){
+        for(int j=0;j<semilla;j++){
+            actual[j]= binario[c];//actualiza bloque actual
+            c++;
+        }
+        //hacer operacion
+        invertir(&actual,contarbins(anterior,semilla),semilla,&pegar,cont);
+        for(int j=0;j<semilla;j++){
+            anterior[j]= pegar[j-semilla+(*cont)];//actualiza anterior
+        }
+
+    }
+    return pegar;
+
+}
+string lectura(){
+    string bin_linea;
+    ifstream fin;               //stream de entrada, lectura
+    ofstream fout;
+    string decoded;//stream de salida, escritura
+    int nBloques = 0;
+    int tam_cad = 0;
+    string nf_input = "sudo.txt";
+    try{
+    //Lectura
+        fin.open(nf_input);        //abre el archivo para lectura
+        if(!fin.is_open()){
+            throw '2';
+        }
+        int saltos = 0;
+
+        while(fin.good()){ //lee caracter a caracter hasta el fin del archivo
+            char temp=fin.get();
+            if(fin.good()){
+                if(temp == '\n'){
+                    saltos++;
+                }
+            }
+
+        }
+        fin.close();
+
+        //volver a abrir para evitar problemas.
+        fin.open(nf_input);
+        if(!fin.is_open()){
+            throw '2';
+        }
+
+
+        getline(fin,bin_linea); //Lee linea y la guarda en string
+        tam_cad = bin_linea.length();//longitud real de cada linea
+        if(tam_cad>0){
+            nBloques = tam_cad/n;
+            int cont = 0;
+            string pegar,temp= "00000000";
+            string u = "11111111"; string cer = "00000000";
+            int aux = 0;
+
+            for(int i = 0; i<n*nBloques;i++)pegar.append("0");
+
+            pegar = decode(bin_linea,nBloques, pegar,&cont);
+            aux = 0;
+            for(int j = 0;j<tam_cad/8;j++){
+                for(int c = 0; c<8;c++){
+                    temp[c]=pegar[aux];
+                    aux++;
+                }
+                if(!(temp==u||temp==cer))//los ceros o unos de relleno
+                    decoded+=bin_to_char(temp);
+
+            }
+
+
+        }
+        fout.close();
+        fin.close();
+        cout << "CLAVE: " << decoded<<endl;
+        return decoded;
+
+    }
+
+    catch (char c){
+        cout<<"Error # "<<c<<": ";
+        if(c=='1'){
+            cout<<"Error al abrir el archivo del admin.\n";
+        }
+        else if(c=='2'){
+            cout<<"Error al abrir el archivo del admin.\n";
+        }
+    }
+    catch (...){
+        cout<<"Error no definido en el archivo del admin\n";
+    }
+
+
+}
+int contarbins(string ant ,int semilla){
+    string anterior = ant;
+    int unos = 0;
+    int ceros = 0;
+    for(int i = 0; i<semilla;i++){
+        if(anterior[i]=='1')unos++;
+        else ceros++;
+    }
+    //cout << endl << "cantidad 0s " << ceros << endl;
+    if(unos==ceros)return 0;
+    if(ceros > unos)return 2;
+    else return 3;
+}
+char bin_to_char(string binario) {
+    int decimal = 0, base = 1;
+    for (int i = 7; i >= 0; i--) {
+        if (binario[i] == '1') {
+            decimal += base;
+        }
+        base *= 2;
+    }
+    return (char)decimal;
+}
+void invertir(string* actual_, int freq,int semilla,string *pegar_,int *cont){
+    string copia_actual = *actual_;
+    string copia_pegar = *pegar_;
+    string aux = "0";
+    if(!(freq>semilla)){
+        if(freq ==0){
+            for(int i = 0;i<semilla;i++){
+                if(copia_actual[i]=='1'){
+                    copia_pegar[*cont] = '0';
+
+                }else{
+                    copia_pegar[*cont] = '1';
+                }
+                (*cont)++;
+
+            }
+        }else{
+            int m = 1;
+            for(int i = 0;i<semilla;i++){
+                if(i == (freq*m)-1){
+                    if(copia_actual[i]=='1'){
+                        copia_pegar[*cont] = '0';
+
+                    }else{
+                        copia_pegar[*cont] = '1';
+                    }
+                    m++;
+                }else{
+                    aux = copia_actual[i];
+                    copia_pegar = copia_pegar.replace(*cont,1,aux);
+
+                }
+                (*cont)++;
+
+
+            }
+        }
+
+    }else{
+        for(int i = 0;i<semilla;i++){
+            aux = copia_actual[i];
+            copia_pegar = copia_pegar.replace(*cont,1,aux);
+            (*cont)++;
+        }
+    }
+    *pegar_ = copia_pegar;
+
 }

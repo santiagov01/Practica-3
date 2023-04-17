@@ -219,7 +219,7 @@ void lectura(string nf_ouput,string nf_input){
                 }
                 fout << pegar;
 
-                cout << pegar<<endl;
+                //cout << pegar<<endl;
             }
         }else{
             for(int c = 0; c<=saltos;c++){

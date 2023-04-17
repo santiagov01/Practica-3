@@ -173,10 +173,20 @@ void lectura(char *nf_ouput,char *nf_input, char* bin_linea, int size_cad){
                 char *pegar = new char[nBloques*n];
                 char temp[8];
                 char u[9]="11111111"; char cer[9] = "00000000";
+                int aux = 0;
                 //c_bin(cad_linea,tam_cad,bin,nBloques);
                 switch (metodo) {
                 case 1:
                     decode(bin_linea,nBloques,pegar,&cont);
+
+                    for(int j = 0;j<tam_cad/8;j++){
+                        for(int c = 0; c<8;c++){
+                            temp[c]=pegar[aux];
+                            aux++;
+                        }
+                        if(!(compare(temp,u)||compare(temp,cer)))//los ceros o unos de relleno
+                            fout<< bin_to_char(temp);
+                    }
                     break;
                 case 2:
 
@@ -186,15 +196,7 @@ void lectura(char *nf_ouput,char *nf_input, char* bin_linea, int size_cad){
                     break;
                 }
 
-                int aux = 0;
-                for(int j = 0;j<tam_cad/8;j++){
-                    for(int c = 0; c<8;c++){
-                        temp[c]=pegar[aux];
-                        aux++;
-                    }
-                    if(!(compare(temp,u)||compare(temp,cer)))
-                        fout<< bin_to_char(temp);
-                }
+
                 //for(int z = 0; z<nBloques*n;z++){
                   //  fout << pegar[z];
                 //}
@@ -214,10 +216,21 @@ void lectura(char *nf_ouput,char *nf_input, char* bin_linea, int size_cad){
                     char u[9]="11111111"; char cer[9] = "00000000";
                     //char caracter;
                     char temp[8];
+                    int aux = 0;
                     //c_bin(cad_linea,tam_cad,bin,nBloques);
                     switch (metodo) {
                     case 1:
                         decode(bin_linea,nBloques,pegar,&cont);
+                        for(int j = 0;j<tam_cad/8;j++){
+                            for(int c = 0; c<8;c++){
+                                temp[c]=pegar[aux];
+                                aux++;
+                            }
+
+                            if(!(compare(temp,u)||compare(temp,cer)))
+                                fout<< bin_to_char(temp);
+
+                        }
                         break;
                     case 2:
 
@@ -226,17 +239,8 @@ void lectura(char *nf_ouput,char *nf_input, char* bin_linea, int size_cad){
                         cout << "Debes ingresar el método correcto. ";
                         break;
                     }
-                    int aux = 0;
-                    for(int j = 0;j<tam_cad/8;j++){
-                        for(int c = 0; c<8;c++){
-                            temp[c]=pegar[aux];
-                            aux++;
-                        }
 
-                        if(!(compare(temp,u)||compare(temp,cer)))
-                            fout<< bin_to_char(temp);
 
-                    }
                     //for(int z = 0; z<nBloques*n;z++){
                       //  fout << pegar[z];
                     //}
