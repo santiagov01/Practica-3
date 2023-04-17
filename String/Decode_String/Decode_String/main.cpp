@@ -83,7 +83,7 @@ string decode2(string binario,int nBloques, string pegar){
         }
         for(int i = 0; i<n;i++){
             pegar[c]=actual[i];
-            cout << pegar[c];
+            //cout << pegar[c];
             c++;
         }
 
@@ -196,7 +196,16 @@ void lectura(string nf_ouput,string nf_input){
                         }
                         break;
                     case 2:
-
+                        pegar = decode2(bin_linea,nBloques, pegar);
+                        aux = 0;
+                        for(int j = 0;j<tam_cad/8;j++){
+                            for(int c = 0; c<8;c++){
+                                temp[c]=pegar[aux];
+                                aux++;
+                            }
+                            if(!(temp==u||temp==cer))//los ceros o unos de relleno
+                                fout<< bin_to_char(temp);
+                        }
                         break;
                     default:
                         cout << "Debes ingresar el método correcto. ";

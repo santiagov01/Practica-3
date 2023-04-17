@@ -148,7 +148,7 @@ void encript2(char binario[],int nBloques, char*pegar){
         }
         for(int i = 0; i<n;i++){
             pegar[c]=actual[i];
-            //cout << pegar[c];
+
             c++;
         }
 
@@ -238,7 +238,7 @@ void lectura(char *nf_ouput,char *nf_input, char* cad_linea, int size_cad){
                         encripting(bin,nBloques,pegar,&cont);
                         break;
                     case 2:
-
+                        encript2(bin,nBloques, pegar);
                         break;
                     default:
                         cout << "Debes ingresar el método correcto. ";
